@@ -56,6 +56,19 @@ uvx --from mcpdoc mcpdoc \
 
 * This should run at: http://localhost:8082
 
+* **SSE and MCP Inspector (CORS):** Browser-based clients send a CORS preflight (`OPTIONS`) to `/sse`. mcpdoc enables CORS for SSE by default (any origin, `*`). To allow only specific origins—for example the MCP Inspector—add `--cors-origins` after your URLs:
+
+```bash
+uvx --from mcpdoc mcpdoc \
+    --urls "LangGraph:https://langchain-ai.github.io/langgraph/llms.txt" "LangChain:https://python.langchain.com/llms.txt" \
+    --transport sse \
+    --port 8082 \
+    --host localhost \
+    --cors-origins "http://127.0.0.1:6274" "http://localhost:6274"
+```
+
+* If you still see `405` on `OPTIONS /sse`, install a build that includes SSE CORS (latest PyPI release, or this repo: `uv sync` then `uv run mcpdoc ...`).
+
 ![Screenshot 2025-03-18 at 3 29 30 PM](https://github.com/user-attachments/assets/24a3d483-cd7a-4c7e-a4f7-893df70e888f)
 
 * Run [MCP inspector](https://modelcontextprotocol.io/docs/tools/inspector) and connect to the running server:
@@ -284,6 +297,10 @@ mcpdoc --yaml sample_config.yaml --json sample_config.json --urls LangGraph:http
 
 - `--follow-redirects`: Follow HTTP redirects (defaults to False)
 - `--timeout SECONDS`: HTTP request timeout in seconds (defaults to 10.0)
+- `--transport {stdio,sse}`: MCP transport (default: `stdio`). Use `sse` for HTTP + Server-Sent Events.
+- `--host HOST` / `--port PORT`: Bind address for SSE (defaults: `127.0.0.1`, `8000`).
+- `--log-level LEVEL`: Uvicorn log level when using SSE (`DEBUG`, `INFO`, …; default: `INFO`).
+- `--cors-origins ORIGIN [ORIGIN …]`: Allowed CORS origins for SSE (default: `*`). Use when a browser or MCP Inspector must connect from fixed origins.
 
 Example with additional options:
 

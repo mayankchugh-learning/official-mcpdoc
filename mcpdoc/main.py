@@ -6,8 +6,9 @@ from urllib.parse import urlparse, urljoin
 
 import httpx
 from markdownify import markdownify
-from mcp.server.fastmcp import FastMCP
 from typing_extensions import NotRequired, TypedDict
+
+from mcpdoc.cors_fastmcp import CORSFastMCP
 
 
 class DocSource(TypedDict):
@@ -145,7 +146,8 @@ def create_server(
     timeout: float = 10,
     settings: dict | None = None,
     allowed_domains: list[str] | None = None,
-) -> FastMCP:
+    cors_origins: list[str] | None = None,
+) -> CORSFastMCP:
     """Create the server and generate documentation retrieval tools.
 
     Args:
@@ -157,14 +159,16 @@ def create_server(
             Use ['*'] to allow all domains
             The domain hosting the llms.txt file is always appended to the list
             of allowed domains.
+        cors_origins: Origins allowed for browser CORS when using SSE (default: all).
 
     Returns:
         A FastMCP server instance configured with documentation tools
     """
     settings = settings or {}
-    server = FastMCP(
+    server = CORSFastMCP(
         name="llms-txt",
         instructions=_get_server_instructions(doc_sources),
+        cors_origins=cors_origins,
         **settings,
     )
     httpx_client = httpx.AsyncClient(follow_redirects=follow_redirects, timeout=timeout)

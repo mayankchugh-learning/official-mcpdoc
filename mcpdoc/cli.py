@@ -124,6 +124,17 @@ def parse_args() -> argparse.Namespace:
         default=8000,
         help="Port to bind the server to (only used with --transport sse)",
     )
+    parser.add_argument(
+        "--cors-origins",
+        type=str,
+        nargs="*",
+        default=None,
+        metavar="ORIGIN",
+        help=(
+            "Allowed CORS origins for SSE (browser/MCP Inspector). "
+            "Default: * (any origin). Example: --cors-origins http://127.0.0.1:6274"
+        ),
+    )
 
     # Version information
     parser.add_argument(
@@ -236,7 +247,7 @@ def main() -> None:
     settings = {
         "host": args.host,
         "port": args.port,
-        "log_level": "INFO",
+        "log_level": args.log_level.upper(),
     }
 
     # Create and run the server
@@ -246,6 +257,7 @@ def main() -> None:
         timeout=args.timeout,
         settings=settings,
         allowed_domains=args.allowed_domains,
+        cors_origins=args.cors_origins,
     )
 
     if args.transport == "sse":
